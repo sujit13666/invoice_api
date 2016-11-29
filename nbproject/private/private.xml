@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/views/items/index.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/views/estimates/index.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/views/items/edit.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/controllers/api/Auth.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/config/config.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/views/users/settings.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/controllers/Users.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/views/invoices/edit.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/controllers/Clients.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/controllers/Estimates.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/views/clients/index.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/controllers/api/Clients.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/views/estimates/edit.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/controllers/Items.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/.htaccess</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/views/users/index.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/config/database.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/controllers/Auth.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/views/users/edit.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/views/auth/index.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/core/MY_Controller.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/core/MY_Model.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/system/core/Output.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/controllers/Settings.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/libraries/REST_Controller.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/config/autoload.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/controllers/Invoices.php</file>
+            <file>file:/D:/xampp/htdocs/invoice_app/WebApplication/application/views/clients/edit.php</file>
+        </group>
+    </open-files>
+</project-private>

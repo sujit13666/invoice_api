@@ -1,0 +1,29 @@
+.margin-right5 {margin-right:5px;}
+.margin-right10 {margin-right:10px;}
+
+.margin-left5 {margin-left:5px;}
+.margin-left10 {margin-left:10px;}
+
+.margin-top5 {margin-top:5px;}
+.margin-top10 {margin-top:10px;}
+.margin-top20 {margin-top:20px;}
+.margin-top50 {margin-top:50px;}
+
+.margin-bottom5 {margin-bottom:5px;}
+.margin-bottom10 {margin-bottom:10px;}
+.margin-bottom20 {margin-bottom:20px;}
+
+.padding-right5 {padding-right: 5px;}
+.padding-right10 {padding-right: 10px;}
+
+.padding-bottom5 {padding-bottom: 5px;}
+.padding-bottom10 {padding-bottom: 10px;}
+
+.color-light-grey {color:#BFBABA;}
+.display-block {display:block;}
+.cursor-pointer {cursor:pointer;}
+
+#pagination > strong, #pagination > a
+{
+	padding:0px 8px;
+} 

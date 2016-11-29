@@ -1,0 +1,163 @@
+<?php
+defined('BASEPATH') or exit('No direct script access allowed');
+
+/**
+ * RESTful authentication
+ * http://yourdomain.com/index.php/api/auth
+ */
+class Auth extends REST_Controller
+{
+
+    function __construct()
+    {
+        // Construct the parent class
+        parent::__construct();
+    }
+
+    /**
+     * login 
+     * 
+     * url:  http://yourdomain.com/index.php/api/auth/login
+     * type: POST
+     * 
+     * Used by the API to log you in
+     *      
+     * @param string $email     required    email with password base64 encoded base64(peter@email.com:password)
+     * @param string $http_auth required    basic authentication type
+     * 
+     * @return json object
+     */
+    public function login_post()
+    {
+        // Returns NULL if the SERVER variables PHP_AUTH_USER and HTTP_AUTHENTICATION don't exist
+        $email = $this->input->post('email_address');
+        $http_auth = $this->input->server('HTTP_AUTHENTICATION');
+        
+        $response = array(
+            'success' => false,
+            'message' => '',
+            'data' => ''
+        );
+        
+        if (empty($email)) {
+            $response['message'] = lang("email_is_required");
+            
+            $this->set_response($response, REST_Controller::HTTP_FORBIDDEN);
+        } else {
+            $password = NULL;
+            
+            if ($email !== NULL) {
+                $password = $this->input->post('password');
+            } elseif ($http_auth !== NULL) {
+                // If the authentication header is set as basic, then extract the username and password from
+                // HTTP_AUTHORIZATION e.g. my_username:my_password.
+                if (strpos(strtolower($http_auth), 'basic') === 0) {
+                    // Search online for HTTP_AUTHORIZATION workaround to explain what this is doing
+                    list ($email, $password) = explode(':', base64_decode(substr($this->input->server('HTTP_AUTHORIZATION'), 6)));
+                }
+            }
+            
+            if (! isset($this->ion_auth_model))
+                $this->load->model('ion_auth_model');
+            
+            if ($this->ion_auth_model->login($email, $password)) {
+                if (! isset($this->users_model))
+                    $this->load->model('users_model');
+                if (! isset($this->settings_model))
+                    $this->load->model('settings_model');
+                
+                $this->users_model->db->join('keys', 'keys.id = users.api_key', 'left');
+                $this->settings_model->db->join('settings', 'settings.user_id = users.id', 'left');
+                $user = $this->users_model->get(array(
+                    'email' => $email,
+                    'active' => 1
+                ), 'users.id,users.email,users.active,users.username as userName,keys.key as api_key, settings.content');
+                
+                $response['success'] = TRUE;
+                $response['data'] = $user[0];
+                
+                $this->set_response($response, REST_Controller::HTTP_ACCEPTED);
+            } else {
+                $response['message'] = $this->ion_auth_model->api_errors();
+                
+                $this->set_response($response, REST_Controller::HTTP_FORBIDDEN);
+            }
+        }
+    }
+
+    /**
+     * register
+     *  
+     * url:  http://yourdomain.com/index.php/api/auth/register
+     * type: POST
+     *
+     * Used by the API to register a new user
+     *
+     * @param string $email     required
+     * @param string $password  required
+     * @param string $firstname required
+     * @param string $lastname  required
+     * 
+     * @return json object
+     */
+    public function register_post()
+    {
+        $email = $this->post('email', true);
+        $password = $this->post('password', true);
+//        $firstname = $this->post('firstname', true);
+//        $lastname = $this->post('lastname', true);
+        $userName = $this->post('userName', true);
+        
+        $response = array(
+            'success' => false,
+            'message' => '',
+            'data' => ''
+        );
+        
+        if (empty($email) || empty($password) || empty($userName)) {
+            $response['message'] = lang("register_form_required");
+            
+            $this->set_response($response, REST_Controller::HTTP_BAD_REQUEST);
+        } else 
+            if (! (bool) filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $response['message'] = lang("email_is_invalid");
+                
+                $this->set_response($response, REST_Controller::HTTP_BAD_REQUEST);
+            } else {
+                if (! isset($this->ion_auth_model))
+                    $this->load->model('ion_auth_model');
+                
+//                $additional_data['first_name'] = $firstname;
+//                $additional_data['last_name'] = $lastname;
+                $additional_data['username'] = $userName;
+                
+                if ($user = $this->ion_auth_model->register($email, $password, $email, $additional_data)) {
+                    if (! isset($this->settings_model))
+                        $this->load->model('settings_model');
+                    
+                    $settings['user_id'] = $user->id;
+                    
+                    $settings['content'] = json_encode(array(
+                        'currency_symbol' => '$',
+                        'invoice_number' => 0,
+                        'estimate_number' => 0,
+                        'address' => '|#|#|#|#|#'
+                    ));
+                    
+                    $this->settings_model->save($settings);
+                    
+                    $response['message'] = lang("record_creation_successful");
+                    $response['success'] = true;
+                    
+                    $user->content = $settings['content'];
+                    $response['data'] = $user;
+                    
+                    $this->set_response($response, REST_Controller::HTTP_CREATED);
+                } else {
+                    $response['message'] = $this->ion_auth_model->api_errors();
+                    
+                    $this->set_response($response, REST_Controller::HTTP_BAD_REQUEST);
+                }
+            }
+    }
+}
