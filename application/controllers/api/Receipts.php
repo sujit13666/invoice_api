@@ -22,6 +22,7 @@ class Receipts extends REST_Controller
         if (!isset($this->vendors_model))
             $this->load->model('vendors_model');
 
+
     }
 
     /*Add Receipt*/
@@ -64,12 +65,12 @@ class Receipts extends REST_Controller
                 $vendorId = $vendor->id;
             }
 
-            if($this->insert_receipt($userId, $vendorId, $categoryId, $tax, $tip, $total, $description, $date, $attachedImage)){
+            if ($this->insert_receipt($userId, $vendorId, $categoryId, $tax, $tip, $total, $description, $date, $attachedImage)) {
                 $response['message'] = lang("record_creation_successful");
                 $response['success'] = true;
 
                 $this->set_response($response, REST_Controller::HTTP_CREATED);
-            }else{
+            } else {
                 $response['message'] = lang("record_creation_successful");
                 $response['success'] = true;
                 $this->set_response($response, REST_Controller::HTTP_BAD_REQUEST);
@@ -81,7 +82,6 @@ class Receipts extends REST_Controller
             $response['data'] = $e->getMessage();
             $this->set_response($response, REST_Controller::HTTP_BAD_REQUEST);
         }
-
 
 
     }
@@ -119,12 +119,12 @@ class Receipts extends REST_Controller
         $userId = $this->post('userId', true);
         $receipts = $this->post('receipts', true);
 
-        if($this->receipts_model->removeReceipts($userId,$receipts )){
+        if ($this->receipts_model->removeReceipts($userId, $receipts)) {
             $response['message'] = "record_successfully_removed";
             $response['success'] = true;
             $this->set_response($response, REST_Controller::HTTP_OK);
 
-        }else{
+        } else {
             $response['message'] = "record_remove_unsuccessful";
             $response['success'] = false;
             $this->set_response($response, REST_Controller::HTTP_BAD_REQUEST);
@@ -145,6 +145,77 @@ class Receipts extends REST_Controller
         $response['data']['receipts'] = $receipts;
         $this->set_response($response, REST_Controller::HTTP_OK);
 
+
+    }
+
+
+    /*Generate Receipts PDF*/
+    public function generate_receipts_pdf_post()
+    {
+
+        $this->load->helper(array('dompdf', 'file'));
+
+        $userId = $this->post('userId', true);
+        $dateFrom = $this->post('dateFrom', true);
+        $dateTo = $this->post('dateTo', true);
+        $sortType = $this->post('sortType', true);
+
+        $data = array();
+
+        if ($sortType == "category") {
+            $categories = $this->receipts_model->getDistinctCategoriesForPDF($userId, $dateFrom, $dateTo);
+
+            foreach ($categories as $key => $category) {
+
+                $categories[$key]->receipts = $this->receipts_model->getFilteredReceiptsByCategoryForPDF($userId, $dateFrom, $dateTo, $category);
+
+            }
+            $data = $categories;
+
+        } elseif ($sortType == "vendor") {
+
+            $vendors = $this->receipts_model->getDistinctVendorsForPDF($userId, $dateFrom, $dateTo);
+
+            foreach ($vendors as $key => $vendor) {
+
+                $vendors[$key]->receipts = $this->receipts_model->getFilteredReceiptsByVendorForPDF($userId, $dateFrom, $dateTo, $vendor);
+
+            }
+            $data = $vendors;
+
+        } elseif ($sortType == "date") {
+            $dates = $this->receipts_model->getDistinctDatesForPDF($userId, $dateFrom, $dateTo);
+
+            foreach ($dates as $key => $date) {
+
+                $dates[$key]->receipts = $this->receipts_model->getFilteredReceiptsByDateForPDF($userId, $dateFrom, $dateTo, $date);
+
+            }
+            $data = $dates;
+        } else {
+
+        }
+
+
+        $html = $this->load->view('/pdf_templates/receipt.php', array(
+            'data' => $data,
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'sortType' => $sortType
+        ), true);
+
+        $output = pdf_create($html);
+        $filePath = '/pdf/receipts/receipt_';
+        $fileName = date("d-M-Y-H-i-s") . rand(0, 90000) . '.pdf';
+
+        file_put_contents('./pdf/receipts/receipt_' . $fileName, $output);
+
+        $response = array();
+        $response['message'] = "";
+        $response['success'] = true;
+        $response['data']['filePath'] = $filePath . $fileName;
+
+        $this->set_response($response, REST_Controller::HTTP_OK);
 
     }
 
@@ -194,41 +265,6 @@ class Receipts extends REST_Controller
 
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     private function insert_invoice_item($invoiceId, $itemIds, $qtys)

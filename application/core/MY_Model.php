@@ -159,7 +159,7 @@ class MY_Model extends CI_Model
             $data['created_on'] = time();
             $data['updated_on'] = $data['created_on'];
         }
-        
+
         $result = $this->db->insert($this->table, $data);
         
         if ($result) {
