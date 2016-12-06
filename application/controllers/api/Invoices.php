@@ -564,7 +564,7 @@ class Invoices extends REST_Controller
         if ($sortType == "customer") {
             $customers = $this->invoices_model->getDistinctCustomersForPDF($userId, $dateFrom, $dateTo);
             foreach ($customers as $key => $customer) {
-                $customers[$key]->invoices = $this->invoices_model->getFilteredReceiptsByCustomerForPDF($userId, $dateFrom, $dateTo, $customer);
+                $customers[$key]->invoices = $this->invoices_model->getFilteredInvoicesByCustomerForPDF($userId, $dateFrom, $dateTo, $customer);
             }
             $data = $customers;
 
@@ -623,7 +623,7 @@ class Invoices extends REST_Controller
         if ($sortType == "customer") {
             $customers = $this->invoices_model->getDistinctCustomersForPaymentPDF($userId, $dateFrom, $dateTo);
             foreach ($customers as $key => $customer) {
-                $customers[$key]->invoices = $this->invoices_model->getFilteredReceiptsByCustomerForPaymentPDF($userId, $dateFrom, $dateTo, $customer);
+                $customers[$key]->invoices = $this->invoices_model->getFilteredInvoicesByCustomerForPaymentPDF($userId, $dateFrom, $dateTo, $customer);
             }
             $data = $customers;
 
@@ -655,6 +655,49 @@ class Invoices extends REST_Controller
         $fileName = date("d-M-Y-H-i-s") . rand(0, 90000) . '.pdf';
 
         file_put_contents('./pdf/invoices/payments_' . $fileName, $output);
+
+        $response = array();
+        $response['message'] = "";
+        $response['success'] = true;
+        $response['data']['filePath'] = $filePath . $fileName;
+
+        $this->set_response($response, REST_Controller::HTTP_OK);
+
+    }
+
+    /*Generate Expenses PDF*/
+
+    public function generate_expenses_pdf_post()
+    {
+
+        $this->load->helper(array('dompdf', 'file'));
+
+        $userId = $this->post('userId', true);
+        $dateFrom = $this->post('dateFrom', true);
+        $dateTo = $this->post('dateTo', true);
+
+        $data = array();
+
+        $dates = $this->invoices_model->getDistinctDatesForExpensePDF($userId, $dateFrom, $dateTo);
+
+
+        foreach ($dates as $key => $date) {
+            $dates[$key]->items = $this->invoices_model->getFilteredInvoicesByDateForExpensePDF($userId, $dateFrom, $dateTo, $date);
+        }
+        $data = $dates;
+
+
+        $html = $this->load->view('/pdf_templates/expense_invoice.php', array(
+            'data' => $data,
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo
+        ), true);
+
+        $output = pdf_create($html);
+        $filePath = '/pdf/invoices/expenses_';
+        $fileName = date("d-M-Y-H-i-s") . rand(0, 90000) . '.pdf';
+
+        file_put_contents('./pdf/invoices/expenses_' . $fileName, $output);
 
         $response = array();
         $response['message'] = "";

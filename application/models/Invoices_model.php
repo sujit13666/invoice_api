@@ -139,7 +139,7 @@ class Invoices_model extends MY_Model
         return ($query ->result());
 
     }
-    public function getFilteredReceiptsByCustomerForPDF($userId, $dateFrom, $dateTo, $customer){
+    public function getFilteredInvoicesByCustomerForPDF($userId, $dateFrom, $dateTo, $customer){
 
         $this->db->select('i.id as invoice_id, c.id as client_id, c.business_name, i.user_id,i.subtotal, i.vat, i.total,i.paid,i.comment,i.is_paid,i.invoice_date,i.attached_image');
         $this->db->from('invoices i');
@@ -205,7 +205,7 @@ class Invoices_model extends MY_Model
         return ($query ->result());
 
     }
-    public function getFilteredReceiptsByCustomerForPaymentPDF($userId, $dateFrom, $dateTo, $customer){
+    public function getFilteredInvoicesByCustomerForPaymentPDF($userId, $dateFrom, $dateTo, $customer){
 
         $this->db->select('i.id as invoice_id, c.id as client_id, c.business_name, i.user_id,i.subtotal, i.vat, i.total,i.paid,i.comment,i.is_paid,i.invoice_date,i.attached_image');
         $this->db->from('invoices i');
@@ -222,5 +222,33 @@ class Invoices_model extends MY_Model
 
     }
 
+
+    public function getDistinctDatesForExpensePDF($userId, $dateFrom, $dateTo){
+
+        $this->db->distinct();
+        $this->db->select('i.item_date');
+        $this->db->from('items i');
+        $this->db->where('i.user_id',$userId);
+        $this->db->where('i.item_date >=', $dateFrom);
+        $this->db->where('i.item_date <=', $dateTo);
+
+        $query = $this->db->get();
+        return ($query ->result());
+
+    }
+    public function getFilteredInvoicesByDateForExpensePDF($userId, $dateFrom, $dateTo, $date){
+
+        $this->db->select('i.id as item_id, i.name, i.cost, i.item_date');
+        $this->db->from('items i');
+        $this->db->where('i.user_id',$userId);
+        $this->db->where('i.item_date >=', $dateFrom);
+        $this->db->where('i.item_date  <=', $dateTo);
+        $this->db->where('i.item_date', $date->item_date);
+
+        $query = $this->db->get();
+        return ($query ->result());
+
+
+    }
 
 }
