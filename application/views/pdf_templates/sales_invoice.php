@@ -331,7 +331,7 @@ table th[class*="col-"] {
 
         <tr>
             <th></th>
-            
+
             <th class="text-right"><strong><?php echo number_format($salesTotal,2); ?></strong></th>
             <th class="text-right"><strong><?php echo number_format($paidTotal,2); ?></strong></th>
             <th class="text-right"><strong><?php echo number_format($owedTotal,2); ?></strong></th>

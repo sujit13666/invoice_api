@@ -155,4 +155,72 @@ class Invoices_model extends MY_Model
 
     }
 
+
+
+
+    public function getDistinctDatesForPaymentPDF($userId, $dateFrom, $dateTo){
+
+        $this->db->distinct();
+        $this->db->select('i.invoice_date');
+        $this->db->from('invoices i');
+        $this->db->where('i.user_id',$userId);
+        $this->db->where('i.is_paid',1);
+        $this->db->where('i.invoice_date >=', $dateFrom);
+        $this->db->where('i.invoice_date <=', $dateTo);
+
+        $query = $this->db->get();
+        return ($query ->result());
+
+    }
+    public function getFilteredInvoicesByDateForPaymentPDF($userId, $dateFrom, $dateTo, $date){
+
+        $this->db->select('i.id as invoice_id, c.id as client_id, c.business_name, i.user_id,i.subtotal, i.vat, i.total,i.paid,i.comment,i.is_paid,i.invoice_date,i.attached_image');
+        $this->db->from('invoices i');
+        $this->db->join('clients c', 'c.id=i.client_id', 'left');
+        $this->db->where('i.user_id',$userId);
+        $this->db->where('i.is_paid',1);
+        $this->db->where('i.invoice_date >=', $dateFrom);
+        $this->db->where('i.invoice_date  <=', $dateTo);
+        $this->db->where('i.invoice_date', $date->invoice_date);
+
+        $query = $this->db->get();
+        return ($query ->result());
+
+
+    }
+
+
+    public function getDistinctCustomersForPaymentPDF($userId, $dateFrom, $dateTo){
+
+        $this->db->distinct();
+        $this->db->select('c.business_name , c.id');
+        $this->db->from('invoices i');
+        $this->db->join('clients c', 'c.id=i.client_id', 'left');
+        $this->db->where('i.user_id',$userId);
+        $this->db->where('i.is_paid',1);
+        $this->db->where('i.invoice_date >=', $dateFrom);
+        $this->db->where('i.invoice_date <=', $dateTo);
+
+        $query = $this->db->get();
+        return ($query ->result());
+
+    }
+    public function getFilteredReceiptsByCustomerForPaymentPDF($userId, $dateFrom, $dateTo, $customer){
+
+        $this->db->select('i.id as invoice_id, c.id as client_id, c.business_name, i.user_id,i.subtotal, i.vat, i.total,i.paid,i.comment,i.is_paid,i.invoice_date,i.attached_image');
+        $this->db->from('invoices i');
+        $this->db->join('clients c', 'c.id=i.client_id', 'left');
+        $this->db->where('i.user_id',$userId);
+        $this->db->where('i.is_paid',1);
+        $this->db->where('i.invoice_date >=', $dateFrom);
+        $this->db->where('i.invoice_date  <=', $dateTo);
+        $this->db->where('c.id', $customer->id);
+
+        $query = $this->db->get();
+        return ($query ->result());
+
+
+    }
+
+
 }

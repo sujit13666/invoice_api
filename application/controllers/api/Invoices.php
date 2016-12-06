@@ -606,4 +606,63 @@ class Invoices extends REST_Controller
 
     }
 
+    /*Generate Payments PDF*/
+
+    public function generate_payments_pdf_post()
+    {
+
+        $this->load->helper(array('dompdf', 'file'));
+
+        $userId = $this->post('userId', true);
+        $dateFrom = $this->post('dateFrom', true);
+        $dateTo = $this->post('dateTo', true);
+        $sortType = $this->post('sortType', true);
+
+        $data = array();
+
+        if ($sortType == "customer") {
+            $customers = $this->invoices_model->getDistinctCustomersForPaymentPDF($userId, $dateFrom, $dateTo);
+            foreach ($customers as $key => $customer) {
+                $customers[$key]->invoices = $this->invoices_model->getFilteredReceiptsByCustomerForPaymentPDF($userId, $dateFrom, $dateTo, $customer);
+            }
+            $data = $customers;
+
+        }  elseif ($sortType == "date") {
+            $dates = $this->invoices_model->getDistinctDatesForPaymentPDF($userId, $dateFrom, $dateTo);
+            foreach ($dates as $key => $date) {
+                $dates[$key]->invoices = $this->invoices_model->getFilteredInvoicesByDateForPaymentPDF($userId, $dateFrom, $dateTo, $date);
+            }
+            $data = $dates;
+        } else {
+
+            $response = array();
+            $response['message'] = "";
+            $response['success'] = false;
+
+            $this->set_response($response, REST_Controller::HTTP_BAD_REQUEST);
+        }
+
+
+        $html = $this->load->view('/pdf_templates/payment_invoice.php', array(
+            'data' => $data,
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'sortType' => $sortType
+        ), true);
+
+        $output = pdf_create($html);
+        $filePath = '/pdf/invoices/payments_';
+        $fileName = date("d-M-Y-H-i-s") . rand(0, 90000) . '.pdf';
+
+        file_put_contents('./pdf/invoices/payments_' . $fileName, $output);
+
+        $response = array();
+        $response['message'] = "";
+        $response['success'] = true;
+        $response['data']['filePath'] = $filePath . $fileName;
+
+        $this->set_response($response, REST_Controller::HTTP_OK);
+
+    }
+
 }
