@@ -251,4 +251,48 @@ class Invoices_model extends MY_Model
 
     }
 
+    public function getAccuredRevenueForProfitLossPDF($userId, $dateFrom, $dateTo){
+        $this->db->select_sum('i.total');
+
+        $this->db->from('invoices i');
+
+        $this->db->where('i.user_id',$userId);
+
+        $this->db->where('i.invoice_date >=', $dateFrom);
+        $this->db->where('i.invoice_date  <=', $dateTo);
+
+
+        $query = $this->db->get();
+        return ($query ->result());
+    }
+    public function getCashRevenueForProfitLossPDF($userId, $dateFrom, $dateTo){
+        $this->db->select_sum('i.total');
+
+        $this->db->from('invoices i');
+
+        $this->db->where('i.user_id',$userId);
+        $this->db->where('i.is_paid',1);
+        $this->db->where('i.invoice_date >=', $dateFrom);
+        $this->db->where('i.invoice_date  <=', $dateTo);
+
+
+        $query = $this->db->get();
+        return ($query ->result());
+    }
+
+    public function getTotalExpensesForProfitLossPDF($userId, $dateFrom, $dateTo){
+        $this->db->select_sum('i.cost');
+
+        $this->db->from('items i');
+
+        $this->db->where('i.user_id',$userId);
+        $this->db->where('i.item_date >=', $dateFrom);
+        $this->db->where('i.item_date <=', $dateTo);
+
+
+        $query = $this->db->get();
+        return ($query ->result());
+    }
+
+
 }

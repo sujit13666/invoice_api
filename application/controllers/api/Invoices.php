@@ -708,4 +708,55 @@ class Invoices extends REST_Controller
 
     }
 
+
+    /*Generate profit loss PDF*/
+
+    public function generate_profit_loss_pdf_post()
+    {
+
+        $this->load->helper(array('dompdf', 'file'));
+
+        $userId = $this->post('userId', true);
+        $dateFrom = $this->post('dateFrom', true);
+        $dateTo = $this->post('dateTo', true);
+
+
+        $accuredRevenue=$this->invoices_model->getAccuredRevenueForProfitLossPDF($userId, $dateFrom, $dateTo);
+        $cashRevenue=$this->invoices_model->getCashRevenueForProfitLossPDF($userId, $dateFrom, $dateTo);
+        $accountsReceivable =$accuredRevenue[0]->total-$cashRevenue[0]->total;
+        $expenses =$this->invoices_model->getTotalExpensesForProfitLossPDF($userId, $dateFrom, $dateTo);
+        $accuredProfit = $accuredRevenue[0]->total - $expenses[0]->cost;
+        $cashProfit = $cashRevenue[0]->total - $expenses[0]->cost;
+
+        $data = array(
+            'accuredRevenue' =>floatval($accuredRevenue[0]->total),
+            'cashRevenue' =>floatval($cashRevenue[0]->total),
+            'accountsReceivable'=>floatval($accountsReceivable),
+            'expenses'=>floatval($expenses[0]->cost),
+            'accuredProfit'=>floatval($accuredProfit),
+            'cashProfit'=>floatval($cashProfit)
+        );
+
+
+        $html = $this->load->view('/pdf_templates/profit_loss_invoice.php', array(
+            'data' => $data,
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo
+        ), true);
+
+        $output = pdf_create($html);
+        $filePath = '/pdf/invoices/profit_loss_';
+        $fileName = date("d-M-Y-H-i-s") . rand(0, 90000) . '.pdf';
+
+        file_put_contents('./pdf/invoices/profit_loss_' . $fileName, $output);
+
+        $response = array();
+        $response['message'] = "";
+        $response['success'] = true;
+        $response['data']['filePath'] = $filePath . $fileName;
+
+        $this->set_response($response, REST_Controller::HTTP_OK);
+
+    }
+
 }
